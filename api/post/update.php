@@ -10,16 +10,15 @@ include_once __DIR__ . '/../../config/db.php';
 include_once __DIR__ . '/../../models/Post.php';
 
 // ---------------------------------------------------------
-// CONNECT FIRST! (The Horse)
+// CONNECT
 // ---------------------------------------------------------
 $database = new Database();
 $db = $database->connect();
 // ---------------------------------------------------------
 
 // ---------------------------------------------------------
-// THEN CHECK SECURITY (The Cart)
+// SECURITY CHECK
 // ---------------------------------------------------------
-// Now auth_check.php can use the $db variable we just made.
 require_once __DIR__ . '/../auth_check.php'; 
 
 $data = json_decode(file_get_contents("php://input"));
@@ -33,16 +32,19 @@ if(!empty($data->id) && !empty($data->title) && !empty($data->content)) {
         category = :category, 
         image = :image, 
         excerpt = :excerpt, 
-        content = :content, 
+        body = :body, 
         author = :author
-        WHERE id = :id'; // <--- The crucial WHERE clause
+        WHERE id = :id';
 
     $stmt = $db->prepare($query);
 
     // Clean Data
     $title = htmlspecialchars(strip_tags($data->title));
     $category = htmlspecialchars(strip_tags($data->category));
-    $image = htmlspecialchars(strip_tags($data->image));
+    
+    // FIX: Do not sanitize image! Keep the JSON quotes intact.
+    $image = $data->image; 
+    
     $author = htmlspecialchars(strip_tags($data->author));
     $id = htmlspecialchars(strip_tags($data->id));
     
@@ -54,16 +56,18 @@ if(!empty($data->id) && !empty($data->title) && !empty($data->content)) {
     $stmt->bindParam(':category', $category);
     $stmt->bindParam(':image', $image);
     $stmt->bindParam(':excerpt', $excerpt);
-    $stmt->bindParam(':content', $data->content);
+    $stmt->bindParam(':body', $data->content); 
     $stmt->bindParam(':author', $author);
     $stmt->bindParam(':id', $id);
 
     if($stmt->execute()) {
         echo json_encode(array('message' => 'Post Updated'));
     } else {
+        http_response_code(503);
         echo json_encode(array('message' => 'Post Not Updated'));
     }
 } else {
+    http_response_code(400);
     echo json_encode(array('message' => 'Missing ID or Data'));
 }
 ?>

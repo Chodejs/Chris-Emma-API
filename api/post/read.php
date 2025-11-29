@@ -24,19 +24,25 @@ if($num > 0) {
         extract($row);
         
         // SAFETY CHECKS: Ensure variables are strings, never null
-        $safe_body = isset($body) ? (string)$body : "";
+        // We check for 'body' first (new name), then 'content' (old name fallback)
+        $body_content = $body ?? $content ?? "";
+        $safe_body = (string)$body_content;
+
         $safe_title = isset($title) ? (string)$title : "Untitled";
         $safe_author = isset($author) ? (string)$author : "Unknown";
         $safe_category = isset($category) ? (string)$category : "General";
         $safe_image = isset($image) ? (string)$image : "";
         $safe_date = isset($created_at) ? (string)$created_at : "";
 
+        // FIX: Decode HTML entities first so we don't see &nbsp; in excerpts
+        $cleanQP_text = strip_tags(html_entity_decode($safe_body));
+        $excerpt = substr($cleanQP_text, 0, 120) . '...';
+
         $post_item = array(
             'id' => $id,
             'title' => $safe_title,
             'content' => html_entity_decode($safe_body),
-            // Strip tags only from the safe string
-            'excerpt' => substr(strip_tags($safe_body), 0, 100) . '...',
+            'excerpt' => $excerpt, 
             'author' => $safe_author,
             'category' => $safe_category,
             'image' => $safe_image,

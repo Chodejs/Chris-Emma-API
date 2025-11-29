@@ -26,11 +26,14 @@ class Post {
         $query = 'INSERT INTO ' . $this->table . ' SET title = :title, body = :body, author = :author, category = :category, image = :image';
         $stmt = $this->conn->prepare($query);
 
+        // Sanitize strings
         $this->title = htmlspecialchars(strip_tags($this->title));
-        $this->body = $this->body; 
+        $this->body = $this->body; // Allow HTML in body
         $this->author = htmlspecialchars(strip_tags($this->author));
         $this->category = htmlspecialchars(strip_tags($this->category));
-        $this->image = htmlspecialchars(strip_tags($this->image));
+        
+        // FIX: Do NOT sanitize image. It is a JSON string and needs its quotes!
+        $this->image = $this->image; 
 
         $stmt->bindParam(':title', $this->title);
         $stmt->bindParam(':body', $this->body);
