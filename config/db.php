@@ -1,10 +1,16 @@
 <?php
 class Database {
     // DB Params
-    private $host = 'localhost';
-    private $db_name = 'chris_emma_blog';
-    private $username = 'root'; 
-    private $password = 'mysql'; // <--- CONFIRMED WORKING PASSWORD
+    // private $host = 'localhost'; // Localhost Credentials
+    // private $db_name = 'chris_emma_blog'; // Localhost Credentials
+    // private $username = 'root'; // Localhost Credentials
+    // private $password = 'mysql'; // Localhost Credentials
+
+    private $host = 'mysql.chrisandemmashow.com'; // Live Server Credentials
+    private $db_name = 'chris_emma_blog'; // Live Server Credentials
+    private $username = 'architect11'; // Live Server Credentials
+    private $password = '{ReowReow11}'; // Live Server Credentials
+    
     private $conn;
 
     // DB Connect
